@@ -64,64 +64,73 @@ def main():
         # confirmation = input("Are these correct? (y/n)")
         # if confirmation == "y":
             # Confirmed = True
-
+    
+    api.update_status(status="The bot has begun! " + "(" + str(datetime.now()) + ")")
+    last_tweet = (api.user_timeline(count=1))[0]
+    first_id = last_tweet.id
+    
+    
     while True:
-
         mentions = api.search_tweets(q="@LSlayer2")
         for tweets in mentions:
-            query = tweets.text
-            values = query.split(", ")
-            original_id = tweets.id
+            if tweets.id > first_id:
+                query = tweets.text
+                values = query.split("\n")[1].split(", ")
+                original_id = tweets.id
 
-            name = values[0]
+                name = values[0]
 
-            data = requests.post("http://127.0.0.1:8080/receive-params-send-prediction", data=values[1:]).json()
+                params = values[1:]
+                data = requests.post("http://127.0.0.1:8080/receive-params-send-prediction", json=params).json()
 
-            api.update_status(status=data["results"], in_reply_to_status_id=original_id, auto_populate_reply_metadata=True)
+                api.update_status(status="(" + str(datetime.now()) + ") " + data["results"], in_reply_to_status_id=original_id, auto_populate_reply_metadata=True)
 
-            poll_start_time = datetime.now(timezone.utc)
-            poll_end_time = poll_start_time + timedelta(days=1)
-            poll_data = {
-                "poll": {
-                    "title": "Do you think " + name + " will win a medal at the next Olympics?",
-                    "answers": ["Yes", "No"],
-                    "priv": False,
-                    "co": False,
-                    "deadline": str(poll_end_time),
-                    "captcha": False
+                poll_start_time = datetime.now(timezone.utc)
+                poll_end_time = poll_start_time + timedelta(days=1)
+                poll_data = {
+                    "poll": {
+                        "title": "Do you think " + name + " will win a medal at the next Olympics?",
+                        "answers": ["Yes", "No"],
+                        "priv": False,
+                        "co": False,
+                        "deadline": str(poll_end_time),
+                        "captcha": False
+                    }
                 }
-            }
 
-            poll = requests.post("https://strawpoll.com/api/poll", json=poll_data, headers={'API-KEY': client.consumer_key}
-                                 ).json()
-            api.update_status(status="Go vote in our new poll: https://strawpoll.com/" + poll["content_id"])
-            last_tweet = (api.user_timeline(count=1))[0]
-            last_id = last_tweet.id
-            poll_not_done = False
+                poll = requests.post("https://strawpoll.com/api/poll", json=poll_data, headers={'API-KEY': client.consumer_key}
+                                     ).json()
+                api.update_status(status="(" + str(datetime.now()) + ") Go vote in our new poll: https://strawpoll.com/" + poll["content_id"])
+                last_tweet = (api.user_timeline(count=1))[0]
+                last_id = last_tweet.id
+                poll_not_done = False
 
-            while poll_not_done:
-                print("Monitoring tweets now...")
-                time.sleep(30)
-                current_time = datetime.now(timezone.utc)
-                # mentions = api.search_tweets(q="@LSlayer2")
+                while poll_not_done:
+                    print("Monitoring tweets now...")
+                    time.sleep(30)
+                    current_time = datetime.now(timezone.utc)
+                    # mentions = api.search_tweets(q="@LSlayer2")
 
-                # for tweets in mentions:
-                    # if tweets.id > last_id:
+                    # for tweets in mentions:
+                        # if tweets.id > last_id:
 
-                        # text = generate_Media(tweets)
+                            # text = generate_Media(tweets)
 
-                        # api.update_status(status="",
-                                          # in_reply_to_status_id=tweets.id, auto_populate_reply_metadata=True)
-                        # last_id = tweets.id
+                            # api.update_status(status="",
+                                              # in_reply_to_status_id=tweets.id, auto_populate_reply_metadata=True)
+                            # last_id = tweets.id
 
-                if current_time >= poll_end_time:
-                    poll_results = read_Poll(poll["content_id"])
-                    poll_not_done = True
+                    if current_time >= poll_end_time:
+                        poll_results = read_Poll(poll["content_id"])
+                        poll_not_done = True
 
-            data = requests.post("http://127.0.0.1:8080/receive-params-send-prediction", data=[values[1:],
-                                 (poll_results["yes"] / poll_results["no"]), (poll_results["yes"] + poll_results["no"])
-                                  , 0, 0, 0, 0]).json()
-            api.update_status(status=data["results"], in_reply_to_status_id=original_id, auto_populate_reply_metadata=True)
+                if poll_not_done:
+                    data = requests.post("http://127.0.0.1:8080/receive-params-send-prediction", data=[values[1:],
+                                     (poll_results["yes"] / poll_results["no"]), (poll_results["yes"] + poll_results["no"])
+                                      , 0, 0, 0, 0]).json()
+                    api.update_status(status=data["results"], in_reply_to_status_id=original_id, auto_populate_reply_metadata=True)
+                    poll_not_done = False
+        time.sleep(5)
 
 
 main()

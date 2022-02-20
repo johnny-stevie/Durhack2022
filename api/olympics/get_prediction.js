@@ -5,8 +5,7 @@ const path = require("path");
 const postPrediction = (req, res) => {
   let { params } = req.body;
   console.log(req.body);
-  console.log(params);
-  params = JSON.parse(params);
+  params = req.body;
   let cmd = "python ..\\Backend\\normalizer.py ";
   for (let param of params) {
     cmd += ` ${param}`;
