@@ -53,9 +53,9 @@ heightDelta = (float(heightInp[1]) - height) / points
 for i in range(points):
     for j in range(points):
         data = model.predict([[age,weight,height,0]])[0]
-        graphM.append(data)
+        graphM.append(float(data[0]))
         data = model.predict([[age,weight,height,1]])[0]
-        graphF.append(data)
+        graphF.append(float(data[0]))
         weight += weightDelta
     height + heightDelta
     
