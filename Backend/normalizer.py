@@ -139,7 +139,7 @@ height = float(sys.argv[5])
 sex = float(sys.argv[6])
             
 data = model.predict([[19,50,160,0]])[0]
-response += "baseline: chance of gold (" + str(round(data[0] * 100, 2)) + "%), silver (" + str(round(data[1] * 100, 2)) + "%), bronze (" + str(round(data[2] * 100, 2)) + "%)\n"
+response += "baseline > chance of gold (" + str(round(data[0] * 100, 2)) + "%), silver (" + str(round(data[1] * 100, 2)) + "%), bronze (" + str(round(data[2] * 100, 2)) + "%)\n"
             
 gold = data[0]
 if (goldPN >= goldM):
@@ -154,7 +154,7 @@ if (bronzePN >= bronzeM):
     bronze = bronze * (1 + bronzePN - bronzeM)
             
 finalized = [clamp(gold), clamp(silver), clamp(bronze)]
-response += "nationality influence: chance of gold (" + str(round(finalized[0] * 100, 2)) + "%), silver (" + str(round(finalized[1] * 100, 2)) + "%), bronze (" + str(round(finalized[2] * 100, 2)) + "%)\n"
+response += "nationality influence > chance of gold (" + str(round(finalized[0] * 100, 2)) + "%), silver (" + str(round(finalized[1] * 100, 2)) + "%), bronze (" + str(round(finalized[2] * 100, 2)) + "%)\n"
 
 if (len(sys.argv) == 13):
     d = 1
@@ -173,7 +173,7 @@ if (len(sys.argv) == 13):
     bronzeN = float(sys.argv[12])
 
     finalized = [(d * finalized[0] + (goldB - 0.5) * math.pow(goldN, 1/4)) / d, (d * finalized[0] + (silverB - 0.5) * math.pow(silverN, 1/4)) / d, (d * finalized[0] + (bronzeB - 0.5) * math.pow(bronzeN, 1/4)) / d]
-    response += "sentimental analysis: chance of gold (" + str(round(finalized[0] * 100, 2)) + "%), silver (" + str(round(finalized[1] * 100, 2)) + "%), bronze (" + str(round(finalized[2] * 100, 2)) + "%)\n"
+    response += "sentimental analysis > chance of gold (" + str(round(finalized[0] * 100, 2)) + "%), silver (" + str(round(finalized[1] * 100, 2)) + "%), bronze (" + str(round(finalized[2] * 100, 2)) + "%)\n"
 
 with open("results.txt", "w") as f:
     f.write(response)
