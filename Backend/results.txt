@@ -1,2 +1,3 @@
-[0.20132127 0.1967315  0.19633743]
-[0.20894035076226788, 0.20617477845521745, 0.20296826266636384]
+baseline: chance of gold (20.13%), silver (19.67%), bronze (19.63%)
+nationality influence: chance of gold (20.89%), silver (20.62%), bronze (20.3%)
+sentimental analysis: chance of gold (21.6%), silver (20.89%), bronze (20.89%)

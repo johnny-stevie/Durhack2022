@@ -20,8 +20,8 @@ const postPrediction = (req, res) => {
     console.log("normalizer output");
     const results = fs.readFileSync(
       path.join(__dirname, "../../Backend/results.txt")
-    );
-    res.status(200).json({ results: JSON.stringify(results) });
+    ).toString();
+    res.status(200).json({ results: results });
   });
 };
 
