@@ -68,12 +68,13 @@ def main():
     api.update_status(status="The bot has begun! " + "(" + str(datetime.now()) + ")")
     last_tweet = (api.user_timeline(count=1))[0]
     first_id = last_tweet.id
+    last_id = first_id
     
     
     while True:
         mentions = api.search_tweets(q="@LSlayer2")
         for tweets in mentions:
-            if tweets.id > first_id:
+            if tweets.id > first_id and tweets.id > last_id:
                 query = tweets.text
                 values = query.split("\n")[1].split(", ")
                 original_id = tweets.id
@@ -86,7 +87,7 @@ def main():
                 api.update_status(status="(" + str(datetime.now()) + ") " + data["results"], in_reply_to_status_id=original_id, auto_populate_reply_metadata=True)
 
                 poll_start_time = datetime.now(timezone.utc)
-                poll_end_time = poll_start_time + timedelta(days=1)
+                poll_end_time = poll_start_time + timedelta(seconds=30)
                 poll_data = {
                     "poll": {
                         "title": "Do you think " + name + " will win a medal at the next Olympics?",
@@ -105,7 +106,7 @@ def main():
                 last_id = last_tweet.id
                 poll_not_done = False
 
-                while poll_not_done:
+                while not(poll_not_done):
                     print("Monitoring tweets now...")
                     time.sleep(30)
                     current_time = datetime.now(timezone.utc)
@@ -125,12 +126,22 @@ def main():
                         poll_not_done = True
 
                 if poll_not_done:
-                    data = requests.post("http://127.0.0.1:8080/receive-params-send-prediction", data=[values[1:],
-                                     (poll_results["yes"] / poll_results["no"]), (poll_results["yes"] + poll_results["no"])
+                    print("done")
+                    bruh = values[1:]
+                    t = (poll_results["Yes"] + poll_results["No"])
+                    if t != 0:
+                        data = requests.post("http://127.0.0.1:8080/receive-params-send-prediction", json=bruh + [
+                                     (poll_results["Yes"] / t), t
                                       , 0, 0, 0, 0]).json()
+                    else:
+                        data = requests.post("http://127.0.0.1:8080/receive-params-send-prediction", json=bruh + [
+                                     0, 0, 0, 0, 0, 0]).json()
                     api.update_status(status=data["results"], in_reply_to_status_id=original_id, auto_populate_reply_metadata=True)
                     poll_not_done = False
-        time.sleep(5)
+                    
+                last_tweet = (api.user_timeline(count=1))[0]
+                last_id = last_tweet.id
+        time.sleep(30)
 
 
 main()
